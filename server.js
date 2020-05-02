@@ -140,7 +140,6 @@ app.put("/api/colors/:id", authenticator, (req, res) => {
   }
   colors = colors.map(color => {
     if (`${color.id}` === req.params.id) {
-      return req.body;
     }
     return color;
   });

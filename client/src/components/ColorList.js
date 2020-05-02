@@ -1,16 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect} from "react";
+import {Link} from 'react-router-dom';
 import axios from "axios";
+import AuthorizeApi from '../api/AuthorizeApi';
+
 
 const initialColor = {
   color: "",
-  code: { hex: "" }
+  code: { hex: "" } 
 };
 
 const ColorList = ({ colors, updateColors }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
-
+ console.log(colorToEdit);
   const editColor = color => {
     setEditing(true);
     setColorToEdit(color);
@@ -18,36 +21,44 @@ const ColorList = ({ colors, updateColors }) => {
 
   const saveEdit = e => {
     e.preventDefault();
-    // Make a put request to save your updated color
-    // think about where will you get the id from...
-    // where is is saved right now?
+    AuthorizeApi()
+    .put(`/api/colors/${colorToEdit.id}`,colorToEdit)
+    .then(res=> console.log(res))
+    .catch(err=> console.error(err));
+    updateColors();
+    
   };
 
-  const deleteColor = color => {
-    // make a delete request to delete this color
-  };
+  const deleteColor = (color) => {
+		// make a delete request to delete this color
+	  AuthorizeApi()
+			.delete(`api/colors/${color.id}`)
+			.then((res) => updateColors())
+			.catch((err) => console.error(err));
+
+  };  
 
   return (
     <div className="colors-wrap">
       <p>colors</p>
       <ul>
         {colors.map(color => (
-          <li key={color.color} onClick={() => editColor(color)}>
+             <li key={color.color} onClick={() =>  editColor(color)}>
             <span>
               <span className="delete" onClick={e => {
                     e.stopPropagation();
-                    deleteColor(color)
+                    deleteColor(color);
                   }
                 }>
                   x
-              </span>{" "}
+              </span>
               {color.color}
             </span>
             <div
               className="color-box"
               style={{ backgroundColor: color.code.hex }}
             />
-          </li>
+          </li> 
         ))}
       </ul>
       {editing && (
@@ -59,7 +70,7 @@ const ColorList = ({ colors, updateColors }) => {
               onChange={e =>
                 setColorToEdit({ ...colorToEdit, color: e.target.value })
               }
-              value={colorToEdit.color}
+              defaultValue={colorToEdit.color}
             />
           </label>
           <label>
